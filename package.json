@@ -1,0 +1,38 @@
+{
+  "name": "dom-node-selector-mapping-classifier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test",
+    "dev": "gulp dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecaroth/dom-node-selector-mapping-classifier.git"
+  },
+  "author": "Evan Carothers",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ecaroth/dom-node-selector-mapping-classifier/issues"
+  },
+  "homepage": "https://github.com/ecaroth/dom-node-selector-mapping-classifier#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-electron-mocha": "^1.1.0",
+    "gulp-insert": "^0.5.0",
+    "gulp-install": "^0.6.0",
+    "gulp-jshint": "^1.0.2",
+    "gulp-mocha": "^2.2.0",
+    "gulp-replace": "^0.5.4",
+    "gulp-uglify": "^1.5.3",
+    "gulp-webserver": "^0.9.1",
+    "jquery": "^2.2.4",
+    "jsdom": "^9.2.0",
+    "jshint": "^2.9.2",
+    "mocha": "^2.4.5",
+    "mocha-jsdom": "^1.1.0"
+  }
+}
