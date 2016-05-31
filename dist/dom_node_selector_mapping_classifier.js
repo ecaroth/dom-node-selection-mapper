@@ -173,17 +173,19 @@
 		//console.log("MATCHES",el_matches);
 		if( el_matches.length === 1 ) return false; //no nth-child needed
 
-		//just check immediate siblings now
-		el_matches = Array.from( node.parentNode.querySelectorAll( _build_selector_from_chain([c_data],false) ) );
-		if(el_matches.length === 1 ) return false;
-
-		var match_ind = false;
-		el_matches.some(function(el,ind){
-			if( el === node ){
-				match_ind = ind+1; //nth-child selector uses 1 based indexes
-				return true;
+		//check siblings of type to find the nth-of-type match for this element
+		var siblings = node.parentNode.children,
+			node_type_iter = 0,
+			match_ind = false;
+		for(var i=0; i<siblings.length; i++){
+			var _node = siblings[i];
+			if(_node.tagName!==node.tagName) continue;
+			node_type_iter++;
+			if(_node===node){
+				match_ind = node_type_iter;
+				break;
 			}
-		});
+		}
 		return match_ind;
 	}
 
