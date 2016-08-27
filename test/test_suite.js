@@ -28,7 +28,7 @@ describe('test functionality', function() {
 		expect($el.length).to.equal(1); //make sure jquery element is a single
 		var sel = mapper.mapNode( $el[0], matches, loose ); //build selection
 
-		console.log("SEL: ",sel);
+		//console.log("SEL: ",sel);
 		expect( sel ).to.not.equal( false ); //expect result to not be false
 		
 		//test selector funcitonality w/ css3 + querySelectorAll
