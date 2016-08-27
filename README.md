@@ -15,9 +15,9 @@ It is ideally designed for use cases where a user selects an element on an HTML 
 Usage
 ------
 
-Include the script file _/dist/dom_node_selector_mapping_classifier.min.js_ on your webpage. This creates a global object __DOMNodeSelectorMappingClassifier__, which exposes a single static function 
-###```.mapNode( node, mappings, loose_match)``` 
-that takes in 3 params:
+Include the script file _/dist/dom_node_selector_mapping_classifier.min.js_ on your webpage. This creates a global object __DOMNodeSelectorMappingClassifier__, which exposes a single static function:
+
+####```.mapNode( node, mappings, loose_match)``` 
 > `node` _(HTML Element)_ DOM node that you wish to map selector for
 > 
 > `mappings` _(string or array of strings)_ Matches that you want to use when building the selector string that can help identify the node and it's parents
@@ -60,8 +60,7 @@ and with _loose_match_ set to **false** you would get a resulting selector strin
 > __INPUT[id="city_2"][name="city"]__
 
 
-
-#### Specificity and mapping inputs
+### Specificity and mapping inputs
 
 You will notice that for non-loose matching, more specificity is used which often means more brevity for the selector. And, when a match with high confidence can be found (aka with an ID or name attribute) then the selector mapping ends there, since that will be adequite for reuse.
 
