@@ -18,7 +18,7 @@ describe('test functionality', function() {
 	beforeEach(function() {
     	//initialize the page, document, and jquery
     	$ = rerequire('jquery');
-    	mapper = rerequire('../dist/dom_node_selector_mapping_classifier.js').DOMNodeSelectorMappingClassifier;
+    	mapper = rerequire('../dist/dom_node_selection_mapper.js').DOMNodeSelectionMapper;
     	//mapper.debug = true;
     });
 
@@ -55,6 +55,11 @@ describe('test functionality', function() {
 			set_template( 'test_address_form' );
 		});
 
+		it('label wrapped input with placeholder and id placeholder is ignored',function(){
+			check_selector( $('#city_1'), ['city'], true );
+			check_selector( $('#city_1'), ['city'], false );
+		});
+
 		it('select with 2 high confidence mactches ignores traversal', function(){
 			check_selector( $('#state_2'), ['state','address'], true );
 			check_selector( $('#state_2'), ['state','address'], false );
@@ -75,15 +80,26 @@ describe('test functionality', function() {
 			check_selector( $('#postal_code_1'), ['zip'], false );
 		});
 
-		it('label wrapped input with placeholder and id placeholder is ignored',function(){
+		it('input selected with widely used presence and different wrapping works', function(){
+			check_selector( $('#city_1'), ['city','address'], true );
+			check_selector( $('#city_1'), ['city','address'], false );
 			check_selector( $('#city_1'), ['city'], true );
 			check_selector( $('#city_1'), ['city'], false );
+
+			check_selector( $('#city_2'), ['city','address'], true );
+			check_selector( $('#city_2'), ['city','address'], false );
+			check_selector( $('#city_2'), ['city'], true );
+			check_selector( $('#city_2'), ['city'], false );
+
+			check_selector( $('#my_city'), ['city','address'], true );
+			check_selector( $('#my_city'), ['city','address'], false );
+			check_selector( $('#my_city'), ['city'], true );
+			check_selector( $('#my_city'), ['city'], false );
 		});
 
 	});
 
 	describe('crazy attributes and selectors', function(){
-
 		beforeEach(function() {
 			set_template( 'test_crazy_attr_values' );
 		});
@@ -101,7 +117,6 @@ describe('test functionality', function() {
 	});
 
 	describe('nested classes basic', function(){
-		
 		beforeEach(function() {
 			set_template( 'test_nth_child_support' );
 		});

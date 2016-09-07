@@ -6,23 +6,23 @@ function( match_node, classifier_matches, loose_match ){
 	
 	if(!match_node || !classifier_matches) return false;
 
-	_LOG("Mapping node:", node);
+	_LOG("Mapping node:", match_node);
 	_LOG("With classifiers:", classifier_matches);
-	var classifier = NodeClassifier( classifier_matches, loose_match ); //create classifier object with matches
+	var matcher = NodeMatcher( classifier_matches, loose_match ); //create matcher object with classifiers
 
 	//iterate over current node and parents until we can build a selector with a relative high confidence
-	var node = match_node,		//current node to classify while traversing
-		selector_chain = [],	//chain of selector data as it's pulled from classifier during parent traversal
-		confident = false;		//boolean has classifier returned a high confidence match yet that would allow us from stopping traversal?
+	var node = match_node,		//current node to match while traversing
+		selector_chain = [],	//chain of selector data as it's pulled from matcher during parent traversal
+		confident = false;		//boolean has matcher returned a high confidence match yet that would allow us from stopping traversal?
 	
 	while( !confident ){
 		if( node.tagName==='BODY' ) break; //reached body during traversal, stop
 
-		var c_data = classifier.input( node, loose_match ); //get current node info from classifier
+		var c_data = matcher.input( node ); //get current node info from matcher
 		selector_chain.push( c_data );
 
-		//if we have reached a high level of confidence from classifier, stop matching if we doing an exact match
-		//else keep going for loose match since we don't want to match multiple else so continue traversal
+		//if we have reached a high level of confidence from matcher, stop matching if we're doing a loose match
+		//else keep going for exact match since we don't want to match multiple so continue traversal
 		if( selector_chain[ selector_chain.length-1 ].confidence===CONFIDENCE.high && !loose_match ) break;
 
 		node = node.parentNode;

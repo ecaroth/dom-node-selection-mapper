@@ -10,25 +10,25 @@ function( matches, loose_match ){
 	if( typeof matches === 'string' ) matches = [matches]; //cast to array if string match is passed in
 	matches = matches.map(function(v){ return v.toLowerCase(); }); //convert to lowercase for matching
 
-	//attribute confidence for classification match - high confidence means start of selector string
+	//attribute confidence for match - high confidence means start of selector string
 	var ATTR_CONFIDENCE = {
 		'id': 			CONFIDENCE.high,
 		'name': 		CONFIDENCE.high,
 		'class': 		CONFIDENCE.med,
+		'value': 		CONFIDENCE.med,
 		'title': 		CONFIDENCE.low,
-		'placeholder': 	CONFIDENCE.low,
-		'value': 		CONFIDENCE.med
+		'placeholder': 	CONFIDENCE.low
 	};
 
 	function _input( node ){
-		//main function to pass input node to for classification
-		_LOG("---Classifier iteration node",node);
+		//main function to pass input node to for matching
+		_LOG("---Matcher iteration node",node);
 
 		var attr_matches = [],
 			confidence = 0;
 
 		for(var attr in ATTR_CONFIDENCE){
-			//iterate through each possible attribute for classification and see if there is a match
+			//iterate through each possible attribute for classifier matching and see if there is a match
 
 			var attr_val = node.getAttribute(attr);
 			if(!attr_val) continue; //no matching attribute on the node
@@ -40,7 +40,7 @@ function( matches, loose_match ){
 				check_vals = check_vals[0].replace(/  +/g, ' ').split(/\s+/g);
 			}
 
-			_LOG("Classifier check vals",check_vals);
+			_LOG("Matcher check vals",check_vals);
 
 			check_vals.forEach(function(check){
 				matches.forEach(function(match){
@@ -49,7 +49,8 @@ function( matches, loose_match ){
 					if( ind !== -1 ){
 						var css_attr_val = check;
 						if(loose_match){
-							//fix case for loose match
+							//fix case for loose match - if check val was 'City_1', but check was 'city',
+							//set the match value to be 'City' (preserving case and allowing loose match)
 							css_attr_val = check.substr(ind, match.length ); 
 						}
 						attr_matches.push( [attr, css_attr_val] );
@@ -57,6 +58,7 @@ function( matches, loose_match ){
 					}
 				});
 			});
+
 			_LOG("Attribute selector matches",attr_matches);
 
 			//filter attr_matches to only include highest confidence attributes for brevity

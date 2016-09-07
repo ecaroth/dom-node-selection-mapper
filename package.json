@@ -1,7 +1,7 @@
 {
-  "name": "dom-node-selector-mapping-classifier",
+  "name": "dom-node-selection-mapper",
   "version": "1.0.0",
-  "description": "",
+  "description": "A client-side JS lib for producing reusable selector strings to target DOM nodes on an HTML page",
   "main": "index.js",
   "scripts": {
     "test": "gulp test",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ecaroth/dom-node-selector-mapping-classifier.git"
+    "url": "git+https://github.com/ecaroth/dom-node-selection-mapper"
   },
   "author": "Evan Carothers",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ecaroth/dom-node-selector-mapping-classifier/issues"
+    "url": "https://github.com/ecaroth/dom-node-selection-mapper/issues"
   },
-  "homepage": "https://github.com/ecaroth/dom-node-selector-mapping-classifier#readme",
+  "homepage": "https://github.com/ecaroth/dom-node-selection-mapper#readme",
   "devDependencies": {
     "chai": "^3.5.0",
     "gulp": "^3.9.1",

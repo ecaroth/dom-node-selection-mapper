@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<HTML>
+
+	<HEAD>
+		<SCRIPT src="//localhost:3003/dom_node_selection_mapper.js"></SCRIPT>
+	  	<SCRIPT src="https://code.jquery.com/jquery-2.2.4.min.js"></SCRIPT>
+	</HEAD>
+
+	<BODY>
+		<!-- put your html to test here -->
+		<!-- Example: <input id="city_1" type="text" placeholder="city"> -->
+
+		<SCRIPT>
+			//enable debug
+			DOMNodeSelectionMapper.debug = true;
+
+			//function to build and check selector against intended node
+			function check_selector( $el, matches, loose ){
+
+				var sel = DOMNodeSelectionMapper.mapNode( $el[0], matches, loose ); //build selection
+
+				console.log("SEL: ",sel);
+				
+				//test selector funcitonality w/ css3 + querySelectorAll
+				var nodes = document.querySelectorAll( sel ); //select num nodes with query sel
+				console.log( "resel=", nodes);
+				console.log( "resel_len=", nodes.length);
+				console.log( "matches=", nodes[0]===$el[0] )
+			}
+
+			//now call check_selector( $jq_elem, classifiers, loose_match )
+			//Example: check_selector( $('#city_1'), ['city'], false );
+		</SCRIPT>
+
+	</BODY>
+</HTML>

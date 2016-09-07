@@ -19,7 +19,7 @@
 			'med': 	2,
 			'high': 3
 		},
-		NodeClassifier = <<CLASSIFIER>>; //instantiated in classifier.js
+		NodeMatcher = <<MATCHER>>; //instantiated in _matcher.js
 
 	//define main object w/ available globally accessible params/functions
 	var main = {
@@ -33,6 +33,6 @@
 		console.log("DOM-SEL>> "+str,val);
 	}
 
-	module.DOMNodeSelectorMappingClassifier = main;
+	module.DOMNodeSelectionMapper = main;
 
 })( (typeof exports !== 'undefined') ? exports : window );

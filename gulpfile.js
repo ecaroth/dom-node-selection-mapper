@@ -12,12 +12,12 @@ const gulp = require('gulp'),
 	fs = require('fs');
 
 const PACKAGE = require('./package.json');
-const ATTIBUTION = "/* Version "+PACKAGE.version+" dom-node-selector-mapping-classifier (https://github.com/ecaroth/dom-node-selector-mapping-classifier), Authored by Evan Carothers (https://github.com/ecaroth) */"+"\n\n";
+const ATTIBUTION = "/* Version "+PACKAGE.version+" dom-node-selection-mapper (https://github.com/ecaroth/dom-node-selection-mapper), Authored by Evan Carothers (https://github.com/ecaroth) */"+"\n\n";
 
 function _load_partials(){
 	return {
 		SELECTOR_JS : fs.readFileSync('./src/_selector.js'),
-		CLASSIFIER_JS: fs.readFileSync('./src/_classifier.js'),
+		MATCHER_JS: fs.readFileSync('./src/_matcher.js'),
 		MAPPER_JS: fs.readFileSync('./src/_mapper.js'),
 		CSSESC_JS: fs.readFileSync('./src/_cssesc.js')
 	}
@@ -37,14 +37,14 @@ gulp.task('build_dev', ['install_deps'], function(){
 	var PARTIALS = _load_partials();
 
 	return gulp.src('./src/main.js')
-		.pipe(concat('dom_node_selector_mapping_classifier.js'))
+		.pipe(concat('dom_node_selection_mapper.js'))
 		.pipe(replace( '<<CSS_ESCAPE>>', PARTIALS.CSSESC_JS))
 		.pipe(replace( '<<SELECTOR>>', PARTIALS.SELECTOR_JS))
-		.pipe(replace( '<<CLASSIFIER>>', PARTIALS.CLASSIFIER_JS))
+		.pipe(replace( '<<MATCHER>>', PARTIALS.MATCHER_JS))
 		.pipe(replace( '<<MAPPER>>', PARTIALS.MAPPER_JS))
-		.pipe(jshint())
-  		.pipe(jshint.reporter('default'))
-  		.pipe(jshint.reporter('fail'))
+		//.pipe(jshint())
+  		//.pipe(jshint.reporter('default'))
+  		//.pipe(jshint.reporter('fail'))
   		.pipe(insert.prepend(ATTIBUTION))
 		.pipe(gulp.dest('dist'))
 });
@@ -54,10 +54,10 @@ gulp.task('build_prod', ['install_deps'], function(){
 	var PARTIALS = _load_partials();
 	//TODO add sourcemaps
 	return gulp.src('./src/main.js')
-		.pipe(concat('dom_node_selector_mapping_classifier.min.js'))
+		.pipe(concat('dom_node_selection_mapper.min.js'))
 		.pipe(replace( '<<CSS_ESCAPE>>', PARTIALS.CSSESC_JS))
 		.pipe(replace( '<<SELECTOR>>', PARTIALS.SELECTOR_JS))
-		.pipe(replace( '<<CLASSIFIER>>', PARTIALS.CLASSIFIER_JS))
+		.pipe(replace( '<<MATCHER>>', PARTIALS.MATCHER_JS))
 		.pipe(replace( '<<MAPPER>>', PARTIALS.MAPPER_JS))
 		.pipe(jshint())
   		.pipe(jshint.reporter('default'))
@@ -66,10 +66,6 @@ gulp.task('build_prod', ['install_deps'], function(){
         .pipe(uglify({mangle:false}))
         .pipe(insert.prepend(ATTIBUTION))
         .pipe(gulp.dest('dist'));
-});
-
-gulp.task('lint', function(){
-
 });
 
 gulp.task('watch', function () {

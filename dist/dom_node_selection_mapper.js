@@ -1,4 +1,4 @@
-/* Version 1.0.0 dom-node-selector-mapping-classifier (https://github.com/ecaroth/dom-node-selector-mapping-classifier), Authored by Evan Carothers (https://github.com/ecaroth) */
+/* Version 1.0.0 dom-node-selection-mapper (https://github.com/ecaroth/dom-node-selection-mapper), Authored by Evan Carothers (https://github.com/ecaroth) */
 
 (function( module ){
 	"use strict";
@@ -170,7 +170,6 @@
 		var match_sel = _sel_from_stack( parts );
 
 		var el_matches =  Array.from( node.parentNode.querySelectorAll( match_sel ) );
-		//console.log("MATCHES",el_matches);
 		if( el_matches.length === 1 ) return false; //no nth-child needed
 
 		//check siblings of type to find the nth-of-type match for this element
@@ -179,7 +178,7 @@
 			match_ind = false;
 		for(var i=0; i<siblings.length; i++){
 			var _node = siblings[i];
-			if(_node.tagName!==node.tagName) continue;
+			if(_node.tagName !== node.tagName) continue;
 			node_type_iter++;
 			if(_node===node){
 				match_ind = node_type_iter;
@@ -189,16 +188,22 @@
 		return match_ind;
 	}
 
-	function _build_selector_from_chain( chain, check_for_child_collission ){
+	function _test_for_uniqueness_with_node_type( parts ){
+		var match_sel = _sel_from_stack( parts );
+		var el_matches = Array.from( document.querySelectorAll( match_sel ) );
+		return el_matches.length === 1;
+	}
+
+	function _build_selector_from_chain( chain, check_for_node_collission ){
 		var parts = [],
 			used_last = false,
-			last_was_nth_child = false;
+			last_was_node_match = false;			
 
 		for(var i=0, len=chain.length; i<len; i++){
 			var c = chain[i],
 				sel = "";
 
-			var this_used_nth_child = false;
+			var this_used_node_match = false;
 
 			sel += c.node.tagName;
 			//then comes any attribute selectors
@@ -209,22 +214,45 @@
 				
 			});
 
-			if(check_for_child_collission){
+			//if we are doing a loose match and there are no matches, see if we can use the nodeType from the node 
+			//to see if the element is uniquely identified on the page. If so, stop building the selection chain
+			if(check_for_node_collission){
+
+				if(loose_match && c.matches.length===0){
+					//check to see if direct parent match will satisfy for loose match
+					if(used_last){
+						var temp_node_sel = sel + ' >';
+						if( _test_for_uniqueness_with_node_type( parts.concat([temp_node_sel]) ) ){
+							//was unique with general parent match, should be good for loose match
+							parts.push( temp_node_sel );
+							break;
+						}
+					}
+					//check to see if general (non-parent match) will satisfy for loose match
+					if( _test_for_uniqueness_with_node_type( parts.concat([sel]) ) ){
+						//was unique with specific parent match, should be good for loose match
+						parts.push( sel );
+						break;
+					}
+				}
+
+				//now, check against nth-child collision
+
 				var temp_sel = sel;
 				if(used_last) temp_sel += ' >'; //temporary sel for testing
 				var nth_child = _test_for_child_collision( parts.concat([temp_sel]), c, c.node );
 				if(nth_child){
 					sel += ':nth-of-type('+nth_child+')';
-					this_used_nth_child = true;
+					this_used_node_match = true;
 				}
 			}
 
-			if(c.matches.length===0 && i!==0 && !last_was_nth_child && !this_used_nth_child){
+			if(c.matches.length===0 && i!==0 && !last_was_node_match && !this_used_node_match){
 				used_last = false;
 				continue;
 			}
 
-			last_was_nth_child = this_used_nth_child;
+			last_was_node_match = this_used_node_match;
 
 			//check for immediate child match
 			if(used_last) sel += ' >';
@@ -246,7 +274,7 @@
 			'med': 	2,
 			'high': 3
 		},
-		NodeClassifier = function( matches, loose_match ){
+		NodeMatcher = function( matches, loose_match ){
 	//takes in a set of possible classifier matches, a (bool) perform loose match, and returns an object that exposes 1 function 
 	//named 'input'. Input takes in a DOM node (which is current node in parent traversal), classifies, and returs
 	//a data object in the format:
@@ -258,25 +286,25 @@
 	if( typeof matches === 'string' ) matches = [matches]; //cast to array if string match is passed in
 	matches = matches.map(function(v){ return v.toLowerCase(); }); //convert to lowercase for matching
 
-	//attribute confidence for classification match - high confidence means start of selector string
+	//attribute confidence for match - high confidence means start of selector string
 	var ATTR_CONFIDENCE = {
 		'id': 			CONFIDENCE.high,
 		'name': 		CONFIDENCE.high,
 		'class': 		CONFIDENCE.med,
+		'value': 		CONFIDENCE.med,
 		'title': 		CONFIDENCE.low,
-		'placeholder': 	CONFIDENCE.low,
-		'value': 		CONFIDENCE.med
+		'placeholder': 	CONFIDENCE.low
 	};
 
 	function _input( node ){
-		//main function to pass input node to for classification
-		_LOG("---Classifier iteration node",node);
+		//main function to pass input node to for matching
+		_LOG("---Matcher iteration node",node);
 
 		var attr_matches = [],
 			confidence = 0;
 
 		for(var attr in ATTR_CONFIDENCE){
-			//iterate through each possible attribute for classification and see if there is a match
+			//iterate through each possible attribute for classifier matching and see if there is a match
 
 			var attr_val = node.getAttribute(attr);
 			if(!attr_val) continue; //no matching attribute on the node
@@ -288,7 +316,7 @@
 				check_vals = check_vals[0].replace(/  +/g, ' ').split(/\s+/g);
 			}
 
-			_LOG("Classifier check vals",check_vals);
+			_LOG("Matcher check vals",check_vals);
 
 			check_vals.forEach(function(check){
 				matches.forEach(function(match){
@@ -297,7 +325,8 @@
 					if( ind !== -1 ){
 						var css_attr_val = check;
 						if(loose_match){
-							//fix case for loose match
+							//fix case for loose match - if check val was 'City_1', but check was 'city',
+							//set the match value to be 'City' (preserving case and allowing loose match)
 							css_attr_val = check.substr(ind, match.length ); 
 						}
 						attr_matches.push( [attr, css_attr_val] );
@@ -305,6 +334,7 @@
 					}
 				});
 			});
+
 			_LOG("Attribute selector matches",attr_matches);
 
 			//filter attr_matches to only include highest confidence attributes for brevity
@@ -328,7 +358,7 @@
 	return{
 		input: _input
 	};
-}; //instantiated in classifier.js
+}; //instantiated in _matcher.js
 
 	//define main object w/ available globally accessible params/functions
 	var main = {
@@ -341,23 +371,23 @@
 	
 	if(!match_node || !classifier_matches) return false;
 
-	_LOG("Mapping node:", node);
+	_LOG("Mapping node:", match_node);
 	_LOG("With classifiers:", classifier_matches);
-	var classifier = NodeClassifier( classifier_matches, loose_match ); //create classifier object with matches
+	var matcher = NodeMatcher( classifier_matches, loose_match ); //create matcher object with classifiers
 
 	//iterate over current node and parents until we can build a selector with a relative high confidence
-	var node = match_node,		//current node to classify while traversing
-		selector_chain = [],	//chain of selector data as it's pulled from classifier during parent traversal
-		confident = false;		//boolean has classifier returned a high confidence match yet that would allow us from stopping traversal?
+	var node = match_node,		//current node to match while traversing
+		selector_chain = [],	//chain of selector data as it's pulled from matcher during parent traversal
+		confident = false;		//boolean has matcher returned a high confidence match yet that would allow us from stopping traversal?
 	
 	while( !confident ){
 		if( node.tagName==='BODY' ) break; //reached body during traversal, stop
 
-		var c_data = classifier.input( node, loose_match ); //get current node info from classifier
+		var c_data = matcher.input( node ); //get current node info from matcher
 		selector_chain.push( c_data );
 
-		//if we have reached a high level of confidence from classifier, stop matching if we doing an exact match
-		//else keep going for loose match since we don't want to match multiple else so continue traversal
+		//if we have reached a high level of confidence from matcher, stop matching if we're doing a loose match
+		//else keep going for exact match since we don't want to match multiple so continue traversal
 		if( selector_chain[ selector_chain.length-1 ].confidence===CONFIDENCE.high && !loose_match ) break;
 
 		node = node.parentNode;
@@ -380,6 +410,6 @@
 		console.log("DOM-SEL>> "+str,val);
 	}
 
-	module.DOMNodeSelectorMappingClassifier = main;
+	module.DOMNodeSelectionMapper = main;
 
 })( (typeof exports !== 'undefined') ? exports : window );
