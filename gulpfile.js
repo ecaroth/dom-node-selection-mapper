@@ -83,12 +83,14 @@ gulp.task('dev_webserver', ['build_dev'], function(){
 gulp.task('test', ['build_prod','build_dev'], function(){
 	return gulp.src('./test/test_suite.js', {read: false})
 		.pipe(mocha({reporter:'spec'}))
-		.once('error', () => {
-            process.exit(1);
-        })
-        .once('end', () => {
-            process.exit();
-        });
+		.on("error", function(err) {
+	  		console.log(err.toString());
+	  		this.emit('end');
+	  		 process.exit();
+	  	})
+	    .once('end', () => {
+	        process.exit();
+	    });
 });
 
 gulp.task('dev', ['dev_webserver','watch'] );

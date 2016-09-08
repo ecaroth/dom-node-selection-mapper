@@ -5,7 +5,6 @@ const expect = require('chai').expect,
 	jsdom = require('mocha-jsdom'),
 	rerequire = jsdom.rerequire;
 
-
 describe('test functionality', function() {
 
 	jsdom({
@@ -23,21 +22,24 @@ describe('test functionality', function() {
     });
 
 	//function to build and check selector against intended node
-	function check_selector( $el, matches, loose ){
+	function check_selector( $el, matches, loose, parent ){
+
+		if(!parent) parent = document.body;
+		//console.log("EL:", $el);
 
 		expect($el.length).to.equal(1); //make sure jquery element is a single
-		var sel = mapper.mapNode( $el[0], matches, loose ); //build selection
+		var sel = mapper.mapNode( $el[0], matches, loose, parent ); //build selection
 
 		//console.log("SEL: ",sel);
 		expect( sel ).to.not.equal( false ); //expect result to not be false
-		
+
 		//test selector funcitonality w/ css3 + querySelectorAll
-		var nodes = document.querySelectorAll( sel ); //select num nodes with query sel
+		var nodes = parent.querySelectorAll( sel ); //select num nodes with query sel
 		expect( nodes.length ).to.equal( 1 ); //verify 1 node was selected
 		expect( nodes[0] ).to.equal( $el[0] ); //verify node is exact node
 		
 		//test same functionality with jquery
-		nodes = $( sel );
+		nodes = $(parent).find( sel );
 		expect( nodes.length ).to.equal( 1 );
 		expect( nodes[0] ).to.equal( $el[0] );
 
@@ -49,10 +51,23 @@ describe('test functionality', function() {
 		document.body.innerHTML = fs.readFileSync('./test/templates/'+name+'.html');
 	}
 
+	describe('parent object coercion & iframe support', function(){
+
+		//TODO - implement a test for iframe
+
+	});
+
 	describe('multiple address inputs in form', function(){
 
 		beforeEach(function() {
 			set_template( 'test_address_form' );
+		});
+
+		it('providing parent_node works on child elements', function(){
+			var $parent = $('section');
+			console.log($parent);
+			check_selector( $('#my_city'), ['city'], true, $parent[0] );
+			check_selector( $('#my_city'), ['city'], false, $parent[0] );
 		});
 
 		it('label wrapped input with placeholder and id placeholder is ignored',function(){

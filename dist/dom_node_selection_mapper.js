@@ -363,7 +363,7 @@
 	//define main object w/ available globally accessible params/functions
 	var main = {
 		debug: false,					//can be set directly to true/false
-		mapNode: function( match_node, classifier_matches, loose_match ){
+		mapNode: function( match_node, classifier_matches, loose_match, parent_node ){
 	//function to handle node mapping (returns selector string or false if invalid / unable to map)
 	//match_node = DOM node to map
 	//classifier_matches = string or array of strings that can be used for classification/mapping
@@ -371,6 +371,22 @@
 	
 	if(!match_node || !classifier_matches) return false;
 
+	//if parent_node is not supplied, or if global window is supplied, select body
+	if(!parent_node || parent_node.self===parent_node) parent_node = document.body;
+
+	if( ["#document","HTML"].indexOf(parent_node.nodeName) !== -1 || parent_node.self===parent_node){
+		//passed in document or HTML as parentNode - select body element
+		parent_node = parent_node.querySelector('body')[0];
+	}
+
+	//see if an iframe window was passed in as the parent, and if so try and select the document content
+	if( parent_node.nodeName === 'IFRAME' ){
+		var iframe_doc = (parent_node.contentWindow || parent_node.contentDocument);
+		if (iframe_doc.document) iframe_doc = iframe_doc.document;
+		parent_node = iframe_doc.querySelector('body');
+	}
+
+	_LOG("Parent node:", parent_node);
 	_LOG("Mapping node:", match_node);
 	_LOG("With classifiers:", classifier_matches);
 	var matcher = NodeMatcher( classifier_matches, loose_match ); //create matcher object with classifiers
@@ -381,8 +397,8 @@
 		confident = false;		//boolean has matcher returned a high confidence match yet that would allow us from stopping traversal?
 	
 	while( !confident ){
-		if( node.tagName==='BODY' ) break; //reached body during traversal, stop
-
+		if( node===parent_node ) break;
+		
 		var c_data = matcher.input( node ); //get current node info from matcher
 		selector_chain.push( c_data );
 

@@ -35,7 +35,8 @@ Include the script file `/dist/dom_node_selection_mapper.min.js` on your webpage
 > `mappings` _(string or array of strings)_ Matches that you want to use when building the selector string that can help identify the node and it's parents
 >
 > `loose_match` _(boolean)_ Allow loose attribute matching based on mapping values, else uses strict attribute matching which can tighten up selector specificity, but also allows for less flexibility in the selector reuse if you expect changes in IDs/classnames/etc
-
+>
+> `parent` _(HTML Element, window, or document)_ The parent element that you wish to use to map against. If omitted, the BODY element of the current HTML page will be used. To do things like map within iframes, you can pass in the iframe object/contentWindow/document (please note that cross-origin restrictions apply)
 
 For example, given the following HTML fragment:
 ```HTML
