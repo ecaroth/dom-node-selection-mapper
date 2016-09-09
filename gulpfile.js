@@ -9,7 +9,8 @@ const gulp = require('gulp'),
 	install = require("gulp-install"),
 	jshint = require('gulp-jshint'),
 	insert = require('gulp-insert'),
-	fs = require('fs');
+	fs = require('fs'),
+	babel = require('gulp-babel');
 
 const PACKAGE = require('./package.json');
 const ATTIBUTION = "/* Version "+PACKAGE.version+" dom-node-selection-mapper (https://github.com/ecaroth/dom-node-selection-mapper), Authored by Evan Carothers (https://github.com/ecaroth) */"+"\n\n";
@@ -42,9 +43,9 @@ gulp.task('build_dev', ['install_deps'], function(){
 		.pipe(replace( '<<SELECTOR>>', PARTIALS.SELECTOR_JS))
 		.pipe(replace( '<<MATCHER>>', PARTIALS.MATCHER_JS))
 		.pipe(replace( '<<MAPPER>>', PARTIALS.MAPPER_JS))
-		//.pipe(jshint())
-  		//.pipe(jshint.reporter('default'))
-  		//.pipe(jshint.reporter('fail'))
+		.pipe(jshint())
+  		.pipe(jshint.reporter('default'))
+  		.pipe(jshint.reporter('fail'))
   		.pipe(insert.prepend(ATTIBUTION))
 		.pipe(gulp.dest('dist'))
 });
@@ -62,7 +63,9 @@ gulp.task('build_prod', ['install_deps'], function(){
 		.pipe(jshint())
   		.pipe(jshint.reporter('default'))
   		.pipe(jshint.reporter('fail'))
-		.pipe(gulp.dest('dist'))
+  		.pipe(babel({
+            presets: ['es2015']
+        }))
         .pipe(uglify({mangle:false}))
         .pipe(insert.prepend(ATTIBUTION))
         .pipe(gulp.dest('dist'));
@@ -82,7 +85,9 @@ gulp.task('dev_webserver', ['build_dev'], function(){
 
 gulp.task('test', ['build_prod','build_dev'], function(){
 	return gulp.src('./test/test_suite.js', {read: false})
-		.pipe(mocha({reporter:'spec'}))
+		.pipe(mocha({
+			reporter:'spec'
+		}))
 		.on("error", function(err) {
 	  		console.log(err.toString());
 	  		this.emit('end');

@@ -65,7 +65,6 @@ describe('test functionality', function() {
 
 		it('providing parent_node works on child elements', function(){
 			var $parent = $('section');
-			console.log($parent);
 			check_selector( $('#my_city'), ['city'], true, $parent[0] );
 			check_selector( $('#my_city'), ['city'], false, $parent[0] );
 		});
